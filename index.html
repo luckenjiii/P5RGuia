@@ -1405,18 +1405,46 @@
       }).join('');
     }
 
-    // ================= INICIALIZAÇÃO =================
-    window.onload = () => {
+    // ================= INICIALIZAÇÃO AUTOMÁTICA =================
+    window.onload = async () => {
+      // 1. Tenta carregar da cache local primeiro; se não existir, vai buscar ao ficheiro schedule.json
       try {
         const cached = localStorage.getItem("p5r_cached_schedule");
         if (cached) {
           schedule = JSON.parse(cached);
-          renderMonthsBar();
-          renderDays();
-          renderDaysQuickGrid();
+        } else {
+          const res = await fetch("./schedule.json");
+          if (res.ok) {
+            schedule = await res.json();
+            setStorage("p5r_cached_schedule", schedule);
+          }
         }
       } catch (err) {
-        console.error("Erro ao ler cache do schedule:", err);
+        console.warn("Não foi possível carregar o schedule.json automaticamente:", err);
+      }
+
+      // 2. O mesmo processo para as sombras/negociação (caso tenha o negotiation.json)
+      try {
+        const cachedShadows = localStorage.getItem("p5r_custom_shadows");
+        if (cachedShadows) {
+          customShadows = JSON.parse(cachedShadows);
+        } else {
+          const resShadows = await fetch("./negotiation.json");
+          if (resShadows.ok) {
+            const parsed = await resShadows.json();
+            customShadows = Array.isArray(parsed) ? parsed : (parsed.shadows || []);
+            setStorage("p5r_custom_shadows", customShadows);
+          }
+        }
+      } catch (err) {
+        console.warn("Não foi possível carregar o negotiation.json automaticamente:", err);
+      }
+
+      // 3. Renderiza todas as vistas com os dados carregados
+      if (schedule.length > 0) {
+        renderMonthsBar();
+        renderDays();
+        renderDaysQuickGrid();
       }
 
       renderConfidants();
