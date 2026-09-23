@@ -48,10 +48,6 @@
           </div>
         </div>
 
-        <label class="bg-p5-red hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider cursor-pointer shadow">
-          CARREGAR SCHEDULE <input type="file" id="json-loader" class="hidden" accept=".json" onchange="loadScheduleFile(event)">
-        </label>
-
         <button onclick="resetProgressOnly()" class="bg-zinc-900 hover:bg-red-950/80 border border-zinc-700 hover:border-red-600 text-zinc-400 hover:text-red-400 px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider transition">
           🔄 RESET
         </button>
@@ -193,10 +189,6 @@
 
         <input type="text" id="shadow-search" oninput="renderCustomNegotiation()" placeholder="Buscar persona, sombra ou fraqueza..." 
                class="bg-zinc-950 border border-zinc-800 focus:border-red-600 rounded px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none w-full sm:w-56">
-
-        <label class="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider cursor-pointer border border-zinc-700">
-          CARREGAR JSON <input type="file" id="custom-neg-loader" class="hidden" accept=".json" onchange="loadNegotiationFile(event)">
-        </label>
       </div>
     </div>
 
@@ -624,26 +616,6 @@
     }
 
     // ================= CALENDÁRIO & NAVEGAÇÃO RÁPIDA =================
-    function loadScheduleFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          schedule = JSON.parse(ev.target.result);
-          setStorage("p5r_cached_schedule", schedule);
-          renderMonthsBar();
-          renderDays();
-          renderDaysQuickGrid();
-          updateGlobalProgress();
-          alert(`Sucesso! ${schedule.length} dias carregados.`);
-        } catch (err) {
-          alert("Erro ao ler JSON: Formato inválido.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
     function renderMonthsBar() {
       const bar = document.getElementById("months-bar");
       if (!bar) return;
@@ -973,25 +945,6 @@
     }
 
     // ================= NEGOCIAÇÃO & COMPÊNDIO =================
-    function loadNegotiationFile(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try {
-          const parsed = JSON.parse(ev.target.result);
-          customShadows = Array.isArray(parsed) ? parsed : (parsed.shadows || []);
-          setStorage("p5r_custom_shadows", customShadows);
-          populateLocationDropdown();
-          renderCustomNegotiation();
-          alert(`Arquivo carregado com sucesso! ${customShadows.length} sombras importadas.`);
-        } catch (err) {
-          alert("Erro: Arquivo negotiation.json inválido.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
     function populateLocationDropdown() {
       const select = document.getElementById('location-select');
       if (!select) return;
