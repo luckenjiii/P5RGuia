@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" type="image/png" href="https://gcdn.thunderstore.io/live/repository/icons/kam1ya-PalaceEscapeMusic-1.0.0.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer" />
+  <title>Persona 5 Royal - Guia Completo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .font-p5 { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+    .font-sub { font-family: 'Rajdhani', sans-serif; }
+    .bg-p5-red { background-color: #e60012; }
+    .text-p5-red { color: #e60012; }
+    .border-p5-red { border-color: #e60012; }
+    .p5-skew { transform: skewX(-8deg); }
+    .p5-skew-rev { transform: skewX(8deg); }
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #e60012; border-radius: 3px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #18181b; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-['Inter'] selection:bg-red-600 selection:text-white pb-16">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-50 bg-black/95 backdrop-blur border-b-4 border-p5-red shadow-2xl px-4 sm:px-6 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="bg-p5-red px-2.5 py-0.5 font-p5 text-2xl text-black font-extrabold p5-skew shadow-md">P5R</span>
+        <div>
+          <h1 class="font-p5 text-2xl sm:text-3xl text-white tracking-wider leading-none">GUIA COMPLETO</h1>
+          <p class="text-[11px] text-zinc-400 font-sub tracking-widest uppercase">Agenda • Conquistas • Confidants</p>
+        </div>
+      </div>
+
+      <!-- Barra de Progresso Global e Ações de Backup -->
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <div class="bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded flex items-center gap-3">
+          <div>
+            <div class="text-[10px] text-zinc-400 uppercase font-sub font-bold">Progresso Geral</div>
+            <div id="global-progress-text" class="text-xs font-bold text-white font-sub tracking-wider">0% CONCLUÍDO</div>
+          </div>
+          <div class="w-24 sm:w-32 bg-zinc-800 h-2.5 rounded-full overflow-hidden">
+            <div id="global-progress-bar" class="bg-p5-red h-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <label class="bg-p5-red hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider cursor-pointer shadow">
+          CARREGAR SCHEDULE <input type="file" id="json-loader" class="hidden" accept=".json" onchange="loadScheduleFile(event)">
+        </label>
+
+        <button onclick="resetProgressOnly()" class="bg-zinc-900 hover:bg-red-950/80 border border-zinc-700 hover:border-red-600 text-zinc-400 hover:text-red-400 px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider transition">
+          🔄 RESET
+        </button>
+
+        <button onclick="exportProgressData()" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-500 text-zinc-300 px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider transition">
+          💾 SAVE
+        </button>
+
+        <label class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-500 text-zinc-300 px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider cursor-pointer transition">
+          📂 IMPORTAR <input type="file" id="save-importer" class="hidden" accept=".json" onchange="importProgressData(event)">
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVEGAÇÃO PRINCIPAL -->
+  <nav class="bg-zinc-900 border-b border-zinc-800 px-4 sm:px-6 sticky top-[69px] z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between overflow-x-auto gap-2 py-2 custom-scroll">
+      <div class="flex gap-2">
+        <button onclick="switchTab('schedule')" id="tab-btn-schedule" class="tab-btn px-4 py-1.5 rounded text-sm font-sub font-bold tracking-wider uppercase transition bg-p5-red text-black p5-skew">
+          <span class="p5-skew-rev inline-block">📅 Agenda do Calendário</span>
+        </button>
+        <button onclick="switchTab('confidants')" id="tab-btn-confidants" class="tab-btn px-4 py-1.5 rounded text-sm font-sub font-bold tracking-wider uppercase transition bg-zinc-800 text-zinc-400 hover:text-white p5-skew">
+          <span class="p5-skew-rev inline-block">🃏 Confidants & Recompensas</span>
+        </button>
+        <button onclick="switchTab('achievements')" id="tab-btn-achievements" class="tab-btn px-4 py-1.5 rounded text-sm font-sub font-bold tracking-wider uppercase transition bg-zinc-800 text-zinc-400 hover:text-white p5-skew">
+          <span class="p5-skew-rev inline-block">🏆 Conquistas da Steam</span>
+        </button>
+        <button onclick="switchTab('custom-negotiation')" id="tab-btn-custom-negotiation" class="tab-btn px-4 py-1.5 rounded text-sm font-sub font-bold tracking-wider uppercase transition bg-zinc-800 text-zinc-400 hover:text-white p5-skew">
+          <span class="p5-skew-rev inline-block">💬 Negociação & Compêndio</span>
+        </button>
+        <button onclick="switchTab('diary')" id="tab-btn-diary" class="tab-btn px-4 py-1.5 rounded text-sm font-sub font-bold tracking-wider uppercase transition bg-zinc-800 text-zinc-400 hover:text-white p5-skew">
+          <span class="p5-skew-rev inline-block">📓 Diário de Bordo (<span id="diary-counter">0</span>)</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- VIEW 1: AGENDA -->
+  <section id="view-schedule" class="view-content flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-4">
+    <div class="bg-zinc-900/70 p-3.5 rounded-lg border border-zinc-800 space-y-3 shadow-md">
+      
+      <!-- 1. MODO FOCO / PESQUISA -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-2.5 border-b border-zinc-800/80">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="toggleFocusMode()" id="btn-focus-mode" 
+                  class="flex-1 sm:flex-initial h-9 px-3.5 rounded text-xs font-sub font-bold tracking-wider uppercase transition border border-zinc-700 bg-zinc-950 text-zinc-300 hover:border-p5-red flex items-center justify-center gap-2">
+            <span>🎯</span> MODO FOCO: <span id="focus-status" class="text-zinc-500">DESLIGADO</span>
+          </button>
+
+          <button id="btn-jump-current-day" onclick="jumpToCurrentDay()" 
+                  class="hidden h-9 px-3 rounded text-xs font-sub font-bold text-p5-red bg-zinc-950 border border-zinc-800 hover:border-p5-red hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+            <span>📍</span> DIA ATUAL (<span id="current-day-label">-</span>)
+          </button>
+        </div>
+
+        <div class="w-full sm:w-72">
+          <input type="text" id="schedule-search" oninput="filterSchedule(this.value)" placeholder="Buscar confidant, respostas..." 
+                 class="w-full h-9 bg-zinc-950 border border-zinc-800 focus:border-red-600 rounded px-3 text-xs text-white placeholder-zinc-500 focus:outline-none transition">
+        </div>
+      </div>
+
+      <!-- Barra de Navegação do Modo Foco (apenas visível quando ativo) -->
+      <div id="focus-nav-bar" class="hidden flex items-center justify-between bg-zinc-950 p-2 rounded border border-red-900/60 text-xs font-sub">
+        <button onclick="stepFocusDay(-1)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 px-3 py-1 rounded text-white font-bold transition">
+          ◀ Dia Anterior
+        </button>
+        <span class="text-p5-red font-bold uppercase tracking-wider">🎯 VISUALIZAÇÃO EXCLUSIVA DO DIA ATUAL</span>
+        <button onclick="stepFocusDay(1)" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 px-3 py-1 rounded text-white font-bold transition">
+          Dia Seguinte ▶
+        </button>
+      </div>
+
+      <!-- 2. DIAS (Mini-calendário interativo) -->
+      <div id="quick-grid-container" class="space-y-1.5 pb-2.5 border-b border-zinc-800/80">
+        <span class="text-[10px] font-sub font-bold text-zinc-400 uppercase tracking-widest block">Navegação Rápida por Dia:</span>
+        <div id="days-quick-grid" class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 bg-zinc-950/70 rounded border border-zinc-800/50 custom-scroll"></div>
+      </div>
+
+      <!-- 3. MESES (Fundo com scroll livre) -->
+      <div>
+        <span class="text-[10px] font-sub font-bold text-zinc-400 uppercase tracking-widest block mb-1.5">Mês Selecionado:</span>
+        <div id="months-bar" class="flex items-center gap-1.5 overflow-x-auto custom-scroll pb-1"></div>
+      </div>
+
+    </div>
+
+    <div id="days-container" class="space-y-6">
+      <div class="text-center py-20 text-zinc-500">
+        Nenhum arquivo carregado. Clique no botão vermelho <b class="text-red-400">"CARREGAR SCHEDULE"</b> no topo para carregar o seu calendário.
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 2: CONFIDANTS -->
+  <section id="view-confidants" class="view-content hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <div class="bg-zinc-900/60 border border-zinc-800 p-4 rounded-lg flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="font-p5 text-2xl text-white">RASTREADOR DE CONFIDANTS</h2>
+        <p class="text-xs text-zinc-400 font-sub">Monitore seus Ranks de 0 a 10 e confira as vantagens passivas de cada nível.</p>
+      </div>
+      <div class="text-right">
+        <span class="text-xs font-sub font-bold text-zinc-400 uppercase">Confidants Maximizados:</span>
+        <div id="confidants-max-count" class="text-xl font-bold font-sub text-p5-red">0 / 23</div>
+      </div>
+    </div>
+    <div id="confidants-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- VIEW 3: CONQUISTAS DA STEAM -->
+  <section id="view-achievements" class="view-content hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <div class="bg-zinc-900/60 border border-zinc-800 p-4 rounded-lg flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="font-p5 text-2xl text-white">CONQUISTAS DA STEAM (100% ACHIEVEMENTS)</h2>
+        <p class="text-xs text-zinc-400 font-sub">Guia oficial com os requisitos e método de desbloqueio de todas as conquistas do jogo.</p>
+      </div>
+      <div class="text-right">
+        <span class="text-xs font-sub font-bold text-zinc-400 uppercase">Conquistas Desbloqueadas:</span>
+        <div id="achievements-count" class="text-xl font-bold font-sub text-p5-red">0 / 53 (0%)</div>
+      </div>
+    </div>
+    <div id="achievements-container" class="space-y-3"></div>
+  </section>
+
+  <!-- VIEW 4: NEGOCIAÇÃO & COMPÊNDIO -->
+  <section id="view-custom-negotiation" class="view-content hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <div class="bg-zinc-900/80 border border-zinc-800 p-5 rounded-lg shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <h2 class="font-p5 text-2xl text-white flex items-center gap-2">
+          <span class="text-p5-red">GUIA DE NEGOCIAÇÃO</span> & COMPÊNDIO
+        </h2>
+        <p class="text-xs text-zinc-400 font-sub">Consulte as fraquezas e a abordagem ideal de diálogo conforme o temperamento da Sombra.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        <select id="location-select" onchange="renderCustomNegotiation()" 
+                class="bg-zinc-950 border border-zinc-800 focus:border-red-600 rounded px-2.5 py-1.5 text-xs text-white focus:outline-none">
+          <option value="">Todos os Locais / Áreas</option>
+        </select>
+
+        <input type="text" id="shadow-search" oninput="renderCustomNegotiation()" placeholder="Buscar persona, sombra ou fraqueza..." 
+               class="bg-zinc-950 border border-zinc-800 focus:border-red-600 rounded px-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none w-full sm:w-56">
+
+        <label class="bg-zinc-800 hover:bg-zinc-700 text-white px-3 py-1.5 rounded text-xs font-sub font-bold tracking-wider cursor-pointer border border-zinc-700">
+          CARREGAR JSON <input type="file" id="custom-neg-loader" class="hidden" accept=".json" onchange="loadNegotiationFile(event)">
+        </label>
+      </div>
+    </div>
+
+    <!-- Guia Visual de Personalidades -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-zinc-900/90 border-l-4 border-yellow-400 p-3 rounded border-y border-r border-zinc-800">
+        <div class="font-sub font-bold text-yellow-400 text-sm uppercase">UPBEAT (Animada)</div>
+        <p class="text-xs text-zinc-300 mt-1 font-medium">Prefira: <b class="text-white">Engraçado / Otimista</b></p>
+        <span class="text-[10px] text-red-400 block mt-0.5">Evite: Respostas Sérias</span>
+      </div>
+
+      <div class="bg-zinc-900/90 border-l-4 border-sky-400 p-3 rounded border-y border-r border-zinc-800">
+        <div class="font-sub font-bold text-sky-400 text-sm uppercase">TIMID (Tímida)</div>
+        <p class="text-xs text-zinc-300 mt-1 font-medium">Prefira: <b class="text-white">Gentil / Amigável</b></p>
+        <span class="text-[10px] text-red-400 block mt-0.5">Evite: Brincadeiras / Piadas</span>
+      </div>
+
+      <div class="bg-zinc-900/90 border-l-4 border-red-500 p-3 rounded border-y border-r border-zinc-800">
+        <div class="font-sub font-bold text-red-500 text-sm uppercase">IRRITABLE (Irritadiça)</div>
+        <p class="text-xs text-zinc-300 mt-1 font-medium">Prefira: <b class="text-white">Séria / Direta</b></p>
+        <span class="text-[10px] text-red-400 block mt-0.5">Evite: Respostas Imprudentes ou Vagas</span>
+      </div>
+
+      <div class="bg-zinc-900/90 border-l-4 border-purple-400 p-3 rounded border-y border-r border-zinc-800">
+        <div class="font-sub font-bold text-purple-400 text-sm uppercase">GLOOMY (Sombria)</div>
+        <p class="text-xs text-zinc-300 mt-1 font-medium">Prefira: <b class="text-white">Vaga / Ambígua</b></p>
+        <span class="text-[10px] text-red-400 block mt-0.5">Evite: Gentil / Otimista</span>
+      </div>
+    </div>
+
+    <!-- Tabela Dinâmica -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-p5 text-xl text-white">SUAS SOMBRAS SALVAS</h3>
+        <span id="shadows-count" class="text-xs text-zinc-400 font-sub font-bold uppercase">0 SOMBRAS</span>
+      </div>
+      <div class="overflow-x-auto custom-scroll border border-zinc-800 rounded max-h-[550px]">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="sticky top-0 bg-black z-10 text-zinc-400 font-sub uppercase border-b border-zinc-800">
+            <tr>
+              <th class="p-3 text-center">Nível</th>
+              <th class="p-3">Nome da Sombra</th>
+              <th class="p-3">Persona</th>
+              <th class="p-3">Arcano</th>
+              <th class="p-3">Personalidade</th>
+              <th class="p-3 text-emerald-400">Tom Recomendado</th>
+              <th class="p-3">Localização / Área</th>
+              <th class="p-3 text-red-400">Fraquezas</th>
+            </tr>
+          </thead>
+          <tbody id="custom-shadows-body" class="divide-y divide-zinc-800/60 font-medium">
+            <tr><td colspan="8" class="p-6 text-center text-zinc-500">Nenhum dado carregado. Carregue seu negotiation.json no botão acima.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEW 5: DIÁRIO DE BORDO -->
+  <section id="view-diary" class="view-content hidden flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+    <div class="bg-zinc-900/60 border border-zinc-800 p-4 rounded-lg flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="font-p5 text-2xl text-white flex items-center gap-2">
+          <span class="text-p5-red">PHANTOM LOG:</span> DIÁRIO DE BORDO
+        </h2>
+        <p class="text-xs text-zinc-400 font-sub">Histórico consolidado de todas as anotações registradas nos seus dias de calendário.</p>
+      </div>
+      <div class="text-right">
+        <span class="text-xs font-sub font-bold text-zinc-400 uppercase">Entradas Registradas:</span>
+        <div id="diary-total-count" class="text-xl font-bold font-sub text-p5-red">0 DIAS</div>
+      </div>
+    </div>
+    <div id="diary-entries-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+  </section>
+
+  <!-- ================= WIDGET FLUTUANTE DE ATRIBUTOS SOCIAIS ================= -->
+  <div id="floating-stats-wrapper" class="fixed bottom-5 right-5 z-50 flex flex-col items-end">
+    
+    <!-- Painel Expansível com Gráfico Pentagonal -->
+    <div id="floating-stats-panel" class="hidden mb-3 bg-zinc-950/95 border-2 border-p5-red rounded-lg p-4 shadow-[0_0_30px_rgba(230,0,18,0.3)] backdrop-blur-md w-80 max-w-[90vw] transition-all">
+      <div class="flex justify-between items-center border-b border-zinc-800 pb-2 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="bg-p5-red text-black font-extrabold text-[10px] px-1.5 py-0.5 rounded font-sub uppercase">P5R STATS</span>
+          <span class="font-sub font-bold text-sm text-white uppercase tracking-wider">Atributos Sociais</span>
+        </div>
+        <button onclick="toggleFloatingStats()" class="text-zinc-500 hover:text-white text-xs font-bold px-1.5 py-0.5">✕</button>
+      </div>
+
+      <!-- Gráfico Pentagonal SVG Dinâmico -->
+      <div class="flex justify-center items-center py-1">
+        <svg id="stats-radar-svg" width="220" height="200" viewBox="0 0 220 200" class="overflow-visible select-none"></svg>
+      </div>
+
+      <!-- Controles de Nível 1 a 5 -->
+      <div class="space-y-2 mt-2 pt-2 border-t border-zinc-800/80 text-[11px] font-sub">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-sky-400">Knowledge:</span>
+          <div class="flex gap-1" id="stat-btns-knowledge"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-rose-500">Guts:</span>
+          <div class="flex gap-1" id="stat-btns-guts"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-amber-400">Proficiency:</span>
+          <div class="flex gap-1" id="stat-btns-proficiency"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-emerald-400">Kindness:</span>
+          <div class="flex gap-1" id="stat-btns-kindness"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-pink-400">Charm:</span>
+          <div class="flex gap-1" id="stat-btns-charm"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botão de Gatilho Redondo Flutuante -->
+    <button onclick="toggleFloatingStats()" id="btn-floating-stats-trigger" 
+            class="bg-black hover:bg-zinc-900 border-2 border-p5-red text-white p-3 rounded-full shadow-[0_0_20px_rgba(230,0,18,0.4)] flex items-center gap-2 group transition transform hover:scale-105">
+      <span class="text-lg">⭐</span>
+      <span class="font-sub font-bold text-xs uppercase tracking-wider hidden sm:inline-block pr-1 group-hover:text-p5-red transition">Atributos</span>
+      <span id="floating-stats-summary" class="bg-p5-red text-black font-extrabold text-[10px] px-1.5 py-0.5 rounded-full font-sub">5/25</span>
+    </button>
+  </div>
+
+  <script>
+    // ================= DADOS DE CONFIDANTS =================
+    const confidantsData = [
+      { id: "fool", name: "Igor", arcana: "Fool", img: "https://static.wikia.nocookie.net/megamitensei/images/1/16/Persona_5_Confidant_Guides_Icon_%28Fool%29_-_Igor.png/revision/latest?cb=20180609125113", location: "Velvet Room", maxRank: 10, perks: "Aumenta slots de Personas e libera fusões avançadas de 3+ Personas." },
+      { id: "magician", name: "Morgana", arcana: "Magician", img: "https://static.wikia.nocookie.net/megamitensei/images/5/57/Persona_5_Confidant_Guides_Icon_%28Magician%29_-_Morgana.png/revision/latest?cb=20241201203706", location: "Leblanc (Sótão)", maxRank: 10, perks: "Rank 1: Criação de ferramentas. Rank 7: Harisen Recovery. Rank 10: Evita golpe fatal." },
+      { id: "priestess", name: "Makoto Niijima", arcana: "Priestess", img: "https://static.wikia.nocookie.net/megamitensei/images/e/e0/Persona_5_Confidant_Guides_Icon_%28Priestess%29_-_Makoto_Niijima.png/revision/latest?cb=20180609125324", location: "Shujin Academy / Aoyama", maxRank: 10, perks: "Rank 1: Shadow Calculus. Rank 7: Shadow Factorization. Rank 10: Evita golpe fatal." },
+      { id: "empress", name: "Haru Okumura", arcana: "Empress", img: "https://static.wikia.nocookie.net/megamitensei/images/1/11/Persona_5_Confidant_Guides_Icon_%28Empress%29_-_Haru_Okumura.png/revision/latest?cb=20180609125113", location: "Terraço da Shujin", maxRank: 10, perks: "Rank 1: Horta no terraço (vegetais de SP!). Rank 10: Evita golpe fatal." },
+      { id: "emperor", name: "Yusuke Kitagawa", arcana: "Emperor", img: "https://static.wikia.nocookie.net/megamitensei/images/6/6a/Persona_5_Confidant_Guides_Icon_%28Emperor%29_-_Yusuke_Kitagawa.png/revision/latest?cb=20180609125112", location: "Shibuya Underground Walkway", maxRank: 10, perks: "Rank 1: Duplicação de Skill Cards. Rank 10: Evita golpe fatal." },
+      { id: "hierophant", name: "Sojiro Sakura", arcana: "Hierophant", img: "https://static.wikia.nocookie.net/megamitensei/images/c/c9/Persona_5_Confidant_Guides_Icon_%28Hierophant%29_-_Sojiro_Sakura.png/revision/latest?cb=20180609125115", location: "Café Leblanc (Balcão)", maxRank: 10, perks: "Rank 2: Café (SP). Rank 4: Curry (SP de todos). Rank 10: Mestre do Café." },
+      { id: "lovers", name: "Ann Takamaki", arcana: "Lovers", img: "https://static.wikia.nocookie.net/megamitensei/images/5/5b/Persona_5_Confidant_Guides_Icon_%28Lovers%29_-_Ann_Takamaki.png/revision/latest?cb=20180609125321", location: "Shibuya Underground Mall", maxRank: 10, perks: "Rank 2: Girl's Talk (cancela negociação falhada). Rank 10: Evita golpe fatal." },
+      { id: "chariot", name: "Ryuji Sakamoto", arcana: "Chariot", img: "https://static.wikia.nocookie.net/megamitensei/images/b/b2/Persona_5_Confidant_Guides_Icon_%28Chariot%29_-_Ryuji_Sakamoto.png/revision/latest?cb=20241201203742", location: "Shujin Academy (2F) / Arcade", maxRank: 10, perks: "Rank 7: INSTAKILL (elimina sombras fracas com XP e Personas!)." },
+      { id: "justice", name: "Goro Akechi", arcana: "Justice", img: "https://static.wikia.nocookie.net/megamitensei/images/1/1c/Persona_5_Confidant_Guides_Icon_%28Justice%29_-_Goro_Akechi.png/revision/latest?cb=20180609125321", location: "Kichijoji (Clube de Dardos)", maxRank: 10, perks: "Rank 2: Sleuth's Intuition. Rank 4: Jazz Jin Club. Rank 8: Obrigatório para o 3º Semestre." },
+      { id: "hermit", name: "Futaba Sakura", arcana: "Hermit", img: "https://static.wikia.nocookie.net/megamitensei/images/c/c3/Persona_5_Confidant_Guides_Icon_%28Hermit%29_-_Futaba_Sakura.png/revision/latest?cb=20180609125115", location: "Frente do Leblanc", maxRank: 10, perks: "Rank 1: Moral Support (buffs automáticos). Rank 4: Position Hack. Rank 10: Salva de golpe fatal." },
+      { id: "fortune", name: "Chihaya Mifune", arcana: "Fortune", img: "https://static.wikia.nocookie.net/megamitensei/images/0/07/Persona_5_Confidant_Guides_Icon_%28Fortune%29_-_Chihaya_Mifune.png/revision/latest?cb=20180609125114", location: "Shinjuku (Rua Principal)", maxRank: 10, perks: "Rank 1: Luck Reading (boost de stats). Rank 5: Affinity Reading (ganha notas musicais grátis)." },
+      { id: "strength", name: "Caroline & Justine", arcana: "Strength", img: "https://static.wikia.nocookie.net/megamitensei/images/5/52/Persona_5_Confidant_Guides_Icon_%28Strength%29_-_Caroline_and_Justine.png/revision/latest?cb=20180609130641", location: "Velvet Room", maxRank: 10, perks: "Rank 1: Fusão em Grupo. Rank 8: Fusão de Personas de nível maior que o Joker pagando ienes." },
+      { id: "hanged", name: "Munehisa Iwai", arcana: "Hanged Man", img: "https://static.wikia.nocookie.net/megamitensei/images/2/2a/Persona_5_Confidant_Guides_Icon_%28Hanged-Man%29_-_Munehisa_Iwai.png/revision/latest?cb=20180609125114", location: "Untouchable (Shibuya)", maxRank: 10, perks: "Customização de armas de fogo e efeitos de status especiais nas balas." },
+      { id: "death", name: "Tae Takemi", arcana: "Death", img: "https://static.wikia.nocookie.net/megamitensei/images/4/44/Persona_5_Confidant_Guides_Icon_%28Death%29_-_Tae_Takemi.png/revision/latest?cb=20180609125111", location: "Clínica Médica de Yongen-Jaya", maxRank: 10, perks: "Rank 5: Novos remédios curativos. Rank 7: 50% de desconto em tudo (inclusive SP Adhesive 3!)." },
+      { id: "temperance", name: "Sadayo Kawakami", arcana: "Temperance", img: "https://static.wikia.nocookie.net/megamitensei/images/5/5e/Persona_5_Confidant_Guides_Icon_%28Temperance%29_-_Sadayo_Kawakami.png/revision/latest?cb=20180609125325", location: "Telefone do Leblanc", maxRank: 10, perks: "Rank 1: Tempo livre em aulas. Rank 10: SPECIAL MASSAGE (permite sair à noite após masmorras!)." },
+      { id: "devil", name: "Ichiko Ohya", arcana: "Devil", img: "https://static.wikia.nocookie.net/megamitensei/images/8/87/Persona_5_Confidant_Guides_Icon_%28Devil%29_-_Ichiko_Ohya.png/revision/latest?cb=20180609125112", location: "Bar Crossroads (Shinjuku)", maxRank: 10, perks: "Reduz o nível de alerta dos Palácios ao mudar de sala ou virar o dia." },
+      { id: "tower", name: "Shinya Oda", arcana: "Tower", img: "https://static.wikia.nocookie.net/megamitensei/images/4/4c/Persona_5_Confidant_Guides_Icon_%28Tower%29_-_Shinya_Oda.png/revision/latest?cb=20180609125359", location: "Gigolo Arcade (Akihabara)", maxRank: 10, perks: "Rank 1: Down Shot (tiro derruba sombra). Rank 10: Tiros perfuram qualquer imunidade." },
+      { id: "star", name: "Hifumi Togo", arcana: "Star", img: "https://static.wikia.nocookie.net/megamitensei/images/0/04/Persona_5_Confidant_Guides_Icon_%28Star%29_-_Hifumi_Togo.png/revision/latest?cb=20180609125323", location: "Igreja de Kanda", maxRank: 10, perks: "Rank 1: Troca membros no turno do Joker. Rank 10: Troca membros no turno de qualquer aliado." },
+      { id: "moon", name: "Yuuki Mishima", arcana: "Moon", img: "https://static.wikia.nocookie.net/megamitensei/images/6/68/Persona_5_Confidant_Guides_Icon_%28Moon%29_-_Yuuki_Mishima.png/revision/latest?cb=20180609125322", location: "Shibuya / Shinjuku / Akihabara", maxRank: 10, perks: "Rank 10: Aliados na reserva ganham 100% de XP igual aos lutadores ativos." },
+      { id: "sun", name: "Toranosuke Yoshida", arcana: "Sun", img: "https://static.wikia.nocookie.net/megamitensei/images/6/69/Persona_5_Confidant_Guides_Icon_%28Sun%29_-_Toranosuke_Yoshida.png/revision/latest?cb=20180609125324", location: "Shibuya Station Square", maxRank: 10, perks: "Rank 2: Pede mais dinheiro. Rank 10: Permite recrutar Personas de nível maior que o seu." },
+      { id: "judgement", name: "Sae Niijima", arcana: "Judgement", img: "https://static.wikia.nocookie.net/megamitensei/images/b/b8/Persona_5_Confidant_Guides_Icon_%28Judgment%29_-_Sae_Niijima.png/revision/latest?cb=20180609125320", location: "Sala de Interrogatório", maxRank: 10, perks: "Progride automaticamente na história ao recordar os eventos." },
+      { id: "faith", name: "Sumire / Kasumi Yoshizawa", arcana: "Faith", img: "https://static.wikia.nocookie.net/megamitensei/images/b/bf/Persona_5_Confidant_Guides_Icon_%28Faith%29_-_Kasumi_Yoshizawa.png/revision/latest?cb=20241201203857", location: "Kichijoji", maxRank: 10, perks: "Aumenta HP máximo e emboscada de gancho. Ranks 6 a 10 liberados no 3º Semestre." },
+      { id: "councillor", name: "Takuto Maruki", arcana: "Councillor", img: "https://static.wikia.nocookie.net/megamitensei/images/8/80/Persona_5_Confidant_Guides_Icon_%28Councillor%29_-_Takuto_Maruki.png/revision/latest?cb=20210309075901", location: "Shujin Academy (Enfermaria)", maxRank: 10, perks: "Rank 2: Detox. Rank 5: Flow. Rank 9: Obrigatório até 17/11 para o 3º Semestre!" }
+    ];
+
+    // ================= 53 CONQUISTAS DA STEAM =================
+    const achievementsData = [
+      { id: "ach_spirit", name: "Spirit of Rebellion", desc: "Obteve Arsène.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/7ea4caedfa595f3c1c72afc6bcef99af974a7c84.jpg" },
+      { id: "ach_i_am_thou", name: "I am Thou...", desc: "Obteve uma Persona através de negociação.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/5d54cc90c41b10a0726d49d376dc210ccf22c59f.jpg" },
+      { id: "ach_grapple", name: "You'd Better Hang On!", desc: "Usou o gancho (grappling hook).", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/8b621bdd245f43d207af7f4961520f2e3f21194e.jpg" },
+      { id: "ach_tactical_team", name: "Tactical Teamwork", desc: "Executou um Baton Pass.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/73bdccd8b30edaa5ee729d3dd127b59f11a64126.jpg" },
+      { id: "ach_technician", name: "Technician", desc: "Ativou um ataque Technical.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/29f54f389723ce2126042f2af67370c469560a53.jpg" },
+      { id: "ach_disaster", name: "Let's Blow It Up", desc: "Derrotou inimigos através da explosão de uma Disaster Shadow.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/957bb1f848e5b3673654c5ea9287e1dd457189c5.jpg" },
+      { id: "ach_castle", name: "Castle of Lust: Seized", desc: "Concluiu o Palácio de Kamoshida.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/d476c69114062761fb91eda32759271d69e0cbe6.jpg" },
+      { id: "ach_guillotine", name: "A Deadly Debut", desc: "Realizou uma execução na Guilhotina.", cat: "Velvet Room", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/667101891026acf873214dc73e1498c510dcd3f8.jpg" },
+      { id: "ach_phantom_thieves", name: "Phantom Thieves: Assemble!", desc: "Fundou o seu próprio grupo de ladrões.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/b0381e11b7a90e4882f674596d0f742f20b695c1.jpg" },
+      { id: "ach_one_step", name: "One Step at a Time", desc: "Completou um pedido (request) em Mementos.", cat: "Mementos", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/fd92e7654ce78db25bd3ed2b02dab55349bf0da3.jpg" },
+      { id: "ach_tokyo_tourist", name: "Tokyo Tourist", desc: "Foi a um ponto de encontro com alguém.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/b48585ebdf329a2b5474c0f2ae235f0f1d397ae5.jpg" },
+      { id: "ach_batter_up", name: "Batter Up!", desc: "Acertou uma rebatida nas caixas de treino (batting cages).", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/dc58efa8539e1a606af82d98b15b729a5f7fd50c.jpg" },
+      { id: "ach_talent_thief", name: "Talent Thief", desc: "Obteve um acessório de habilidade de um governante de Palácio.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/4d85d5640b5479b7cb3a70af8a1c9b640a6a1d9a.jpg" },
+      { id: "ach_jose_customer", name: "Jose's Favorite Customer", desc: "Trocou flores nos Mementos com o José.", cat: "Mementos", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/c8906b52658005e8ab5df984063eb6b592fe9f15.jpg" },
+      { id: "ach_part_time", name: "Punch That Clock!", desc: "Trabalhou num emprego de meio período.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/3109aba1ce8d442b834c58a8fa77ed44969adb7e.jpg" },
+      { id: "ach_philatelist", name: "The Phantom Philatelist", desc: "Trocou selos nos Mementos com o José.", cat: "Mementos", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/ce86baf891d03e942c999555ec51bdbe44bc513d.jpg" },
+      { id: "ach_museum", name: "Museum of Vanity: Repossessed", desc: "Concluiu o Palácio de Madarame.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/3f4acf1eeacd464483cf6529ca758120e7c623ee.jpg" },
+      { id: "ach_leblanc_buffer", name: "Leblanc Buffer", desc: "Limpou o Café Leblanc.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/fd2686e30ea2148112a5b63fdcd257166a6e8a22.jpg" },
+      { id: "ach_deviated", name: "The Deviated Cognition", desc: "Encontrou um desvio cognitivo nos Mementos.", cat: "Mementos", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/ea0ce4a0b62fc6c8afd1682c2296ffc1685c9737.jpg" },
+      { id: "ach_showtime", name: "It's Showtime!", desc: "Executou um ataque Showtime.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/2010603e5f3dba4f66b78653bef71c08977de1c5.jpg" },
+      { id: "ach_alarm", name: "Accident-Prone", desc: "Realizou uma execução durante um Alarme da Velvet Room.", cat: "Velvet Room", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/5b6861b69d7cd1a9a143e7615c852feabdd877ab.jpg" },
+      { id: "ach_grand_experiment", name: "A Grand Experiment", desc: "Realizou uma execução na Cadeira Elétrica.", cat: "Velvet Room", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/fafcd08cf8200cfd2f7b5d8909a14a07436f8e10.jpg" },
+      { id: "ach_bank", name: "Bank of Gluttony: Cleaned Out", desc: "Concluiu o Palácio de Kaneshiro.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/86edec9981f95cb2d8e6a94fad50fe629606b216.jpg" },
+      { id: "ach_darts", name: "Dartslinger", desc: "Jogou uma partida de dardos.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/9ac20665620940a80a9f1bb8d0459ac55bcc027d.jpg" },
+      { id: "ach_treasure_demon", name: "The Purpose of a Thief", desc: "Obteve um Treasure Demon.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/2737c010e4fc6230b2cb378a69df910ce6fa9b4a.jpg" },
+      { id: "ach_pyramid", name: "Pyramid of Wrath: Plundered", desc: "Concluiu o Palácio de Futaba.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/22064cb410b8f8721827b016de7a661efe035963.jpg" },
+      { id: "ach_trash_treasure", name: "Trash Into Treasure", desc: "Vendeu roupas usadas na Furugi no Neuchi em Kichijoji.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/ce08767cbdbcf119d4ef4916f48632d32b083389.jpg" },
+      { id: "ach_true_confidence", name: "True Confidence", desc: "Maximizou um dos seus Confidants (Rank 10).", cat: "Social", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/1b4b2b5c97044194bbacb599208dd79502fc55c0.jpg" },
+      { id: "ach_gallows", name: "Success Built on Sacrifice", desc: "Realizou uma execução de enforcamento (Gallows).", cat: "Velvet Room", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/1480e94c2962b04703e8d7a5ce220542ccb64ea3.jpg" },
+      { id: "ach_billiards", name: "A Hustler's Journey", desc: "Jogou uma partida de bilhar.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/d75fdb4f65bba958e8f1c2829250dc60a742adad.jpg" },
+      { id: "ach_romance", name: "My Closest Partner", desc: "Entrou num relacionamento especial (namoro).", cat: "Social", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/3e8a7148dd5bcf9067da6e833ec9f627e04096d4.jpg" },
+      { id: "ach_space", name: "Spaceport of Greed: Obliterated", desc: "Concluiu o Palácio de Okumura.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/cad5270e013516eec71b99e1a8a283b5de0ff427.jpg" },
+      { id: "ach_gun_mod", name: "Professional Modification", desc: "Personalizou uma arma de fogo.", cat: "Combate", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/f71f1ff6d6ff93c2ec750f9de2b8afc432b3d58c.jpg" },
+      { id: "ach_casino", name: "Casino of Jealousy: Bankrupted", desc: "Concluiu o Palácio de Sae Niijima.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/a2bdd7966a74191665cbf41b7a9f5b79791cdcde.jpg" },
+      { id: "ach_exams", name: "A Most Studious Disguise", desc: "Obteve a pontuação máxima nos exames escolares.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/7237f4f5e4411ce6c339f91bd8eb7f11d9e779f3.jpg" },
+      { id: "ach_bath_vapors", name: "Getting the Vapors", desc: "Não aguentou o calor excessivo nos banhos públicos.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/12244b0f8314ba7c5b5c750a64f79eb0689bbcff.jpg" },
+      { id: "ach_group_guillotine", name: "Efficient Executioner", desc: "Realizou uma execução na Guilhotina Avançada em Grupo.", cat: "Velvet Room", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/f4aa6d7b4fed17a3fd457fda160c8c3ee4bca2b4.jpg" },
+      { id: "ach_cruiser", name: "Cruiser of Pride: Capsized", desc: "Concluiu o Palácio de Shido.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/4edaadd302a0637f26c34c8517cc41e9b57f7f1a.jpg" },
+      { id: "ach_trickster", name: "The Thorough Trickster", desc: "Concluiu as profundezas dos Mementos.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/57d43d414458d90133fab9542774c461713c7ac2.jpg" },
+      { id: "ach_lottery", name: "Easy Money", desc: "Ganhou na lotaria.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/7c4510e44f63dee3253f2a706fc247b71faabb8a.jpg" },
+      { id: "ach_jazz_club", name: "A Night in Kichijoji", desc: "Visitou o clube de jazz (Jazz Jin).", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/2a3e4138799a5e69356b74bdd665248b0ba92d9f.jpg" },
+      { id: "ach_stats_max", name: "Pure Perfection", desc: "Maximizou todos os 5 Atributos Sociais.", cat: "Social", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/4a0ae5aed139c00780b7ff0e92cab0755c469bd5.jpg" },
+      { id: "ach_the_path_chosen", name: "The Path Chosen", desc: "Assistiu ao final do jogo.", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/5919ad1a9d6c2e41ba4046c96e368bf6fdbfbe3d.jpg" },
+      { id: "ach_persona_evolution", name: "Awakening the Phantom Thieves", desc: "Evoluiu a Persona de um aliado (Rank 10).", cat: "Social", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/bcfde0bde470cf2fe28d133812936a00bd7fc873.jpg" },
+      { id: "ach_temple", name: "A Serene Experience", desc: "Visitou o templo de Kichijoji.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/5a2280c271acbe852fdb931849244bfbcb423d5f.jpg" },
+      { id: "ach_mementos_cognition", name: "The Search for Power", desc: "Alterou completamente a cognição dos Mementos com o José.", cat: "Mementos", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/34a0090e407377e48115d95fcfa7e42425df1ef5.jpg" },
+      { id: "ach_take_back_future", name: "Take Back the Future", desc: "Concluiu todos os Palácios (incluindo o 3º Semestre).", cat: "História", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/7a1ee1b8e6488cd30a59ec506db58963eb347c64.jpg" },
+      { id: "ach_lockdown_incense", name: "Intensive Training", desc: "Usou incenso numa Persona em confinamento (Lockdown).", cat: "Velvet Room", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/e1c3179d50a9e3fe1bf594b226243e485a63c041.jpg" },
+      { id: "ach_crane_game", name: "Going Against the Crane", desc: "Ganhou um prémio no jogo da garra (crane game) no fliperama.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/43237652ae624aef50e10e05bd3893c64be43bcf.jpg" },
+      { id: "ach_fishing", name: "Angler's Debut", desc: "Passou o tempo no lago de pesca.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/6d6972cfbb37ad208f4940dabed56ee0a3cc0ec6.jpg" },
+      { id: "ach_reaper", name: "Unsurpassed Rebel", desc: "Derrotou o Reaper nos Mementos.", cat: "Mementos", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/046f086cdac38026663089a2295efbd9cb5e10be.jpg" },
+      { id: "ach_maid_cafe", name: "Master of Akihabara", desc: "Pediu o item do menu especial no Maid Café.", cat: "Vida Cotidiana", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/a9558c5687e44d07643ae0eedfe60b93239acb99.jpg" },
+      { id: "ach_platinum", name: "The Phenomenal Phantom Thief", desc: "Desbloqueou todas as outras conquistas.", cat: "Platina", icon: "https://shared.fastly.steamstatic.com/community_assets/images/apps/1687950/3f258c23667e8dc4fa24951ae4829253a1de0a5f.jpg" }
+    ];
+
+    // ================= MAPA DE CONFIDANTS =================
+    const confidantKeyMap = {
+      "fool": "fool", "magician": "magician", "priestess": "priestess", "empress": "empress",
+      "emperor": "emperor", "hierophant": "hierophant", "lovers": "lovers", "chariot": "chariot",
+      "justice": "justice", "hermit": "hermit", "fortune": "fortune", "strength": "strength",
+      "hanged": "hanged", "death": "death", "temperance": "temperance", "devil": "devil",
+      "tower": "tower", "star": "star", "moon": "moon", "sun": "sun",
+      "judgement": "judgement", "faith": "faith", "councillor": "councillor"
+    };
+
+    // ================= ESTADO GLOBAL =================
+    let schedule = [];
+    let customShadows = [];
+    let currentMonth = "Abril";
+    let isFocusMode = false;
+    const allMonths = ["Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro", "Janeiro", "Fevereiro", "Março"];
+
+    function getStorage(key, defaultVal) {
+      try {
+        const val = localStorage.getItem(key);
+        return val ? JSON.parse(val) : defaultVal;
+      } catch (e) {
+        return defaultVal;
+      }
+    }
+
+    function setStorage(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {
+        console.error("Erro no setStorage", e);
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.view-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-p5-red', 'text-black');
+        btn.classList.add('bg-zinc-800', 'text-zinc-400');
+      });
+
+      const targetView = document.getElementById(`view-${tabId}`);
+      if (targetView) targetView.classList.remove('hidden');
+
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-zinc-800', 'text-zinc-400');
+        activeBtn.classList.add('bg-p5-red', 'text-black');
+      }
+
+      if (tabId === 'confidants') renderConfidants();
+      if (tabId === 'achievements') renderAchievements();
+      if (tabId === 'custom-negotiation') renderCustomNegotiation();
+      if (tabId === 'schedule') {
+        renderDays();
+        renderDaysQuickGrid();
+      }
+      if (tabId === 'diary') renderDiary();
+      updateGlobalProgress();
+    }
+
+    // ================= WIDGET FLUTUANTE DE ATRIBUTOS (RADAR) =================
+    function toggleFloatingStats() {
+      const panel = document.getElementById('floating-stats-panel');
+      if (!panel) return;
+      panel.classList.toggle('hidden');
+      if (!panel.classList.contains('hidden')) {
+        renderFloatingStatsRadar();
+      }
+    }
+
+    function renderFloatingStatsRadar() {
+      const stats = getStorage("p5r_social_stats", {
+        knowledge: 1, guts: 1, proficiency: 1, kindness: 1, charm: 1
+      });
+
+      const keys = ["knowledge", "guts", "proficiency", "kindness", "charm"];
+      const labels = ["KNOW", "GUTS", "PROF", "KIND", "CHARM"];
+      const colors = ["#38bdf8", "#f43f5e", "#fbbf24", "#34d399", "#f472b6"];
+
+      // Atualiza botões
+      keys.forEach(k => {
+        const val = stats[k] || 1;
+        const cont = document.getElementById(`stat-btns-${k}`);
+        if (cont) {
+          cont.innerHTML = [1, 2, 3, 4, 5].map(lvl => `
+            <button onclick="setSocialStat('${k}', ${lvl})" 
+                    class="w-5 h-5 rounded text-[10px] font-bold font-sub transition ${lvl <= val ? 'bg-p5-red text-black' : 'bg-zinc-800 text-zinc-500 hover:text-zinc-300'}">
+              ${lvl}
+            </button>
+          `).join('');
+        }
+      });
+
+      // Atualiza resumo no botão
+      const totalPoints = Object.values(stats).reduce((a, b) => a + b, 0);
+      const summaryEl = document.getElementById('floating-stats-summary');
+      if (summaryEl) summaryEl.innerText = `${totalPoints}/25`;
+
+      // Renderiza Pentágono SVG
+      const svg = document.getElementById('stats-radar-svg');
+      if (!svg) return;
+
+      const cx = 110, cy = 100, radius = 65;
+      const angleStep = (Math.PI * 2) / 5;
+      const startAngle = -Math.PI / 2;
+
+      let gridsHtml = "";
+      for (let level = 1; level <= 5; level++) {
+        const r = (radius / 5) * level;
+        const points = [];
+        for (let i = 0; i < 5; i++) {
+          const a = startAngle + i * angleStep;
+          points.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+        }
+        gridsHtml += `<polygon points="${points.join(' ')}" fill="none" stroke="${level === 5 ? '#e60012' : '#27272a'}" stroke-width="${level === 5 ? '1.5' : '1'}" stroke-dasharray="${level === 5 ? 'none' : '2,2'}" />`;
+      }
+
+      let axesHtml = "";
+      for (let i = 0; i < 5; i++) {
+        const a = startAngle + i * angleStep;
+        const x = cx + radius * Math.cos(a);
+        const y = cy + radius * Math.sin(a);
+        axesHtml += `<line x1="${cx}" y1="${cy}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="#27272a" stroke-width="1" />`;
+      }
+
+      const statPoints = [];
+      let labelsHtml = "";
+      keys.forEach((k, i) => {
+        const val = stats[k] || 1;
+        const r = (radius / 5) * val;
+        const a = startAngle + i * angleStep;
+        const px = cx + r * Math.cos(a);
+        const py = cy + r * Math.sin(a);
+        statPoints.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+
+        const lx = cx + (radius + 20) * Math.cos(a);
+        const ly = cy + (radius + 15) * Math.sin(a);
+        labelsHtml += `
+          <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${colors[i]}" font-size="10" font-family="'Rajdhani', sans-serif" font-weight="bold" text-anchor="middle" dominant-baseline="central">
+            ${labels[i]} ${val}
+          </text>
+        `;
+      });
+
+      svg.innerHTML = `
+        ${gridsHtml}
+        ${axesHtml}
+        <polygon points="${statPoints.join(' ')}" fill="rgba(230,0,18,0.4)" stroke="#e60012" stroke-width="2" />
+        ${labelsHtml}
+      `;
+
+      updateGlobalProgress();
+    }
+
+    function setSocialStat(st, lvl) {
+      const stats = getStorage("p5r_social_stats", {
+        knowledge: 1, guts: 1, proficiency: 1, kindness: 1, charm: 1
+      });
+      stats[st] = lvl;
+      setStorage("p5r_social_stats", stats);
+      renderFloatingStatsRadar();
+    }
+
+    // ================= MODO FOCO =================
+    function toggleFocusMode() {
+      const currentActive = localStorage.getItem("p5r_current_active_day");
+      if (!currentActive) {
+        alert("Por favor, clique em 'DEFINIR COMO DIA ATUAL' em qualquer dia da agenda antes de ligar o Modo Foco!");
+        return;
+      }
+
+      isFocusMode = !isFocusMode;
+      const btn = document.getElementById("btn-focus-mode");
+      const status = document.getElementById("focus-status");
+      const navBar = document.getElementById("focus-nav-bar");
+      const quickGrid = document.getElementById("quick-grid-container");
+
+      if (isFocusMode) {
+        btn.classList.add("bg-p5-red", "text-black", "border-p5-red");
+        status.innerText = "LIGADO";
+        status.classList.remove("text-zinc-500");
+        status.classList.add("text-black", "font-extrabold");
+        navBar.classList.remove("hidden");
+        quickGrid.classList.add("hidden");
+      } else {
+        btn.classList.remove("bg-p5-red", "text-black", "border-p5-red");
+        status.innerText = "DESLIGADO";
+        status.classList.add("text-zinc-500");
+        status.classList.remove("text-black", "font-extrabold");
+        navBar.classList.add("hidden");
+        quickGrid.classList.remove("hidden");
+      }
+
+      renderDays();
+    }
+
+    function stepFocusDay(direction) {
+      const currentId = localStorage.getItem("p5r_current_active_day");
+      if (!currentId || schedule.length === 0) return;
+
+      const currentIndex = schedule.findIndex(d => d.id === currentId);
+      if (currentIndex === -1) return;
+
+      const newIndex = currentIndex + direction;
+      if (newIndex >= 0 && newIndex < schedule.length) {
+        const nextDay = schedule[newIndex];
+        setCurrentGameDay(nextDay.id);
+        if (currentMonth !== nextDay.month) {
+          setMonth(nextDay.month);
+        }
+      }
+    }
+
+    // ================= CALENDÁRIO & NAVEGAÇÃO RÁPIDA =================
+    function loadScheduleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          schedule = JSON.parse(ev.target.result);
+          setStorage("p5r_cached_schedule", schedule);
+          renderMonthsBar();
+          renderDays();
+          renderDaysQuickGrid();
+          updateGlobalProgress();
+          alert(`Sucesso! ${schedule.length} dias carregados.`);
+        } catch (err) {
+          alert("Erro ao ler JSON: Formato inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderMonthsBar() {
+      const bar = document.getElementById("months-bar");
+      if (!bar) return;
+      bar.innerHTML = allMonths.map(m => `
+        <button onclick="setMonth('${m}')" class="flex-shrink-0 px-3.5 py-1.5 rounded text-xs font-sub font-bold tracking-wider uppercase transition ${m === currentMonth ? 'bg-p5-red text-black shadow-md font-extrabold' : 'bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700'}">
+          ${m}
+        </button>
+      `).join('');
+    }
+
+    function setMonth(m) {
+      currentMonth = m;
+      renderMonthsBar();
+      renderDays();
+      renderDaysQuickGrid();
+    }
+
+    function filterSchedule(term) {
+      renderDays(term.toLowerCase().trim());
+    }
+
+    function renderDaysQuickGrid() {
+      const grid = document.getElementById("days-quick-grid");
+      if (!grid) return;
+
+      const monthDays = schedule.filter(d => d.month === currentMonth);
+      const checks = getStorage("p5r_checks", {});
+      const currentSavedDayId = localStorage.getItem("p5r_current_active_day");
+
+      updateCurrentDayBanner();
+
+      if (monthDays.length === 0) {
+        grid.innerHTML = `<span class="text-xs text-zinc-600 p-1">Nenhum dia disponível neste mês.</span>`;
+        return;
+      }
+
+      grid.innerHTML = monthDays.map(day => {
+        const match = day.date.match(/\/(\d+)/);
+        const dayNumber = match ? match[1] : day.date.slice(0, 5);
+
+        let totalTasks = 0;
+        let completedTasks = 0;
+        ["morning", "afterSchool", "evening"].forEach(slot => {
+          const list = day.slots[slot];
+          if (list && list.length > 0) {
+            list.forEach((_, i) => {
+              totalTasks++;
+              const taskId = `${day.id}_${slot.slice(0, 3)}_${i}`;
+              if (checks[taskId]) completedTasks++;
+            });
+          }
+        });
+
+        const isDone = totalTasks > 0 && totalTasks === completedTasks;
+        const isCurrentActive = day.id === currentSavedDayId;
+
+        let btnStyle = "bg-zinc-900 border-zinc-800 text-zinc-300 hover:border-red-600";
+        if (isDone) {
+          btnStyle = "bg-emerald-950/40 border-emerald-700/60 text-emerald-400 hover:border-emerald-500";
+        }
+        if (isCurrentActive) {
+          btnStyle = "bg-p5-red text-black border-red-500 font-extrabold shadow-lg";
+        }
+
+        return `
+          <button onclick="scrollToDay('${day.id}')" title="${day.date}" 
+                  class="w-8 h-8 rounded border text-xs font-sub font-bold flex flex-col items-center justify-center transition p5-skew ${btnStyle}">
+            <span class="p5-skew-rev text-[11px] leading-none">${dayNumber}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function scrollToDay(dayId) {
+      const dayObj = schedule.find(d => d.id === dayId);
+      if (dayObj && dayObj.month !== currentMonth) {
+        setMonth(dayObj.month);
+      }
+
+      setTimeout(() => {
+        const card = document.getElementById(`card-${dayId}`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.classList.add("ring-2", "ring-p5-red");
+          setTimeout(() => {
+            card.classList.remove("ring-2", "ring-p5-red");
+          }, 1500);
+        }
+      }, 100);
+    }
+
+    function setCurrentGameDay(dayId) {
+      const currentSaved = localStorage.getItem("p5r_current_active_day");
+      
+      // Se clicar no mesmo dia que já está ativo, desmarca!
+      if (currentSaved === dayId) {
+        localStorage.removeItem("p5r_current_active_day");
+        if (isFocusMode) {
+          toggleFocusMode(); // Desliga o modo foco automaticamente se desmarcar o dia
+        }
+      } else {
+        localStorage.setItem("p5r_current_active_day", dayId);
+      }
+
+      renderDaysQuickGrid();
+      renderDays();
+      updateCurrentDayBanner();
+    }
+
+    function updateCurrentDayBanner() {
+      const currentSavedDayId = localStorage.getItem("p5r_current_active_day");
+      const jumpBtn = document.getElementById("btn-jump-current-day");
+      const label = document.getElementById("current-day-label");
+
+      if (!jumpBtn || !label) return;
+
+      if (currentSavedDayId) {
+        const dayObj = schedule.find(d => d.id === currentSavedDayId);
+        if (dayObj) {
+          label.innerText = dayObj.date.split(' ')[0];
+          jumpBtn.classList.remove("hidden");
+          return;
+        }
+      }
+      jumpBtn.classList.add("hidden");
+    }
+
+    function jumpToCurrentDay() {
+      const currentSavedDayId = localStorage.getItem("p5r_current_active_day");
+      if (!currentSavedDayId) return;
+
+      const dayObj = schedule.find(d => d.id === currentSavedDayId);
+      if (dayObj) {
+        if (currentMonth !== dayObj.month) {
+          setMonth(dayObj.month);
+        }
+        setTimeout(() => scrollToDay(currentSavedDayId), 150);
+      }
+    }
+
+    function renderDays(searchTerm = "") {
+      const container = document.getElementById("days-container");
+      if (!container) return;
+      const checks = getStorage("p5r_checks", {});
+      const notes = getStorage("p5r_notes", {});
+      const currentSavedDayId = localStorage.getItem("p5r_current_active_day");
+
+      const validArcanas = [
+        "Fool", "Magician", "Priestess", "Empress", "Emperor", "Hierophant", 
+        "Lovers", "Chariot", "Justice", "Hermit", "Fortune", "Strength", 
+        "Hanged Man", "Death", "Temperance", "Devil", "Tower", "Star", 
+        "Moon", "Sun", "Judgement", "Faith", "Councillor"
+      ];
+
+      let filtered = [];
+      if (isFocusMode && currentSavedDayId) {
+        const found = schedule.find(d => d.id === currentSavedDayId);
+        filtered = found ? [found] : [];
+      } else {
+        filtered = schedule.filter(d => {
+          if (searchTerm) {
+            return d.date.toLowerCase().includes(searchTerm) || 
+                   (d.highlights && d.highlights.some(h => h.toLowerCase().includes(searchTerm))) ||
+                   Object.values(d.slots).flat().filter(Boolean).some(s => s.toLowerCase().includes(searchTerm));
+          }
+          return d.month === currentMonth;
+        });
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="text-center py-16 text-zinc-500">${isFocusMode ? 'Nenhum dia ativo definido. Desative o modo foco ou marque um dia.' : `Nenhum evento registrado para ${currentMonth}.`}</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(day => {
+        const isRealArcana = day.arcanaRequired && validArcanas.includes(day.arcanaRequired.trim());
+        const isCurrentActive = day.id === currentSavedDayId;
+
+        return `
+          <div id="card-${day.id}" class="bg-zinc-900 border ${isCurrentActive ? 'border-p5-red/80 shadow-[0_0_20px_rgba(230,0,18,0.2)]' : 'border-zinc-800'} rounded-lg p-5 shadow-xl transition-all duration-300">
+            <div class="flex flex-wrap justify-between items-center border-b border-zinc-800 pb-3 mb-4 gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-xs bg-p5-red text-black px-2 py-0.5 rounded font-sub font-bold uppercase">${day.month}</span>
+                <h3 class="text-xl font-bold font-sub text-white inline">${day.date}</h3>
+                <span class="text-xs text-zinc-500 font-sub">Clima: ${day.weather}</span>
+              </div>
+              
+              <div class="flex items-center gap-2 flex-wrap">
+                ${isRealArcana ? `<span class="text-xs border border-red-800 bg-red-950/60 text-red-300 px-2.5 py-1 rounded font-bold font-sub tracking-wider">⚠️ ARCANO OBRIGATÓRIO: ${day.arcanaRequired}</span>` : ''}
+                <button onclick="setCurrentGameDay('${day.id}')" 
+                        class="text-[11px] font-sub font-bold px-2.5 py-1 rounded border transition ${isCurrentActive ? 'bg-p5-red text-black border-red-500 hover:bg-zinc-800 hover:text-white' : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-600'}">
+                  ${isCurrentActive ? '★ DIA ATUAL (CLIQUE P/ DESMARCAR)' : '📍 DEFINIR COMO DIA ATUAL'}
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2 space-y-3">
+                ${day.highlights && day.highlights.length ? `
+                  <div class="bg-zinc-950 border-l-2 border-amber-500 p-3 rounded-r text-xs space-y-1">
+                    <span class="font-bold text-amber-400 font-sub uppercase tracking-wider block">★ Destaques & Requisitos:</span>
+                    <ul class="list-disc list-inside text-zinc-300 space-y-0.5">
+                      ${day.highlights.map(h => `<li>${h}</li>`).join('')}
+                    </ul>
+                  </div>
+                ` : ''}
+                ${renderSlotBox("Manhã / Escola", day.slots.morning, day.id, checks)}
+                ${renderSlotBox("After School / Tarde", day.slots.afterSchool, day.id, checks)}
+                ${renderSlotBox("Evening / Noite", day.slots.evening, day.id, checks)}
+              </div>
+
+              <!-- Diário de Bordo -->
+              <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-md flex flex-col justify-between">
+                <div>
+                  <h4 class="text-xs font-bold text-zinc-400 font-sub tracking-wider uppercase mb-2 flex items-center gap-1.5">
+                    <span>📝</span> DIÁRIO DESTE DIA
+                  </h4>
+                  <textarea id="note-${day.id}" placeholder="Notas sobre fusões, lembretes..." class="w-full h-32 bg-zinc-900 border border-zinc-800 rounded p-2 text-xs text-white focus:outline-none focus:border-red-600 transition">${notes[day.id] || ""}</textarea>
+                </div>
+                <div class="flex gap-1.5 mt-2">
+                  <button onclick="saveDayNote('${day.id}')" id="btn-note-${day.id}" class="flex-1 bg-zinc-800 hover:bg-p5-red text-white py-1 rounded text-xs font-sub font-bold tracking-wider transition">
+                    SALVAR NOTA
+                  </button>
+                  <button onclick="clearDayNote('${day.id}')" title="Apagar anotação deste dia" class="px-2.5 py-1 rounded bg-zinc-900 hover:bg-red-950/80 border border-zinc-800 hover:border-red-600 text-zinc-400 hover:text-red-400 text-xs font-sub font-bold transition">
+                    🗑️
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSlotBox(title, list, dayId, checks) {
+      if (!list || list.length === 0) return '';
+      return `
+        <div class="bg-zinc-950 p-3 rounded border border-zinc-800/80">
+          <h4 class="text-xs font-bold text-red-500 font-sub uppercase mb-2 tracking-wider">${title}</h4>
+          <div class="space-y-1.5">
+            ${list.map((task, i) => {
+              const taskId = `${dayId}_${title.slice(0,3)}_${i}`;
+              const checked = !!checks[taskId];
+              const escapedTask = task.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+              return `
+                <label class="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-300 cursor-pointer group">
+                  <input type="checkbox" onchange="toggleTaskCheck('${taskId}', this.checked, '${escapedTask}')" ${checked ? 'checked' : ''} class="mt-0.5 accent-red-600 rounded">
+                  <span class="leading-relaxed transition ${checked ? 'line-through text-zinc-500' : 'group-hover:text-white'}">${task}</span>
+                </label>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleTaskCheck(id, val, taskText = "") {
+      const checks = getStorage("p5r_checks", {});
+      checks[id] = val;
+      setStorage("p5r_checks", checks);
+
+      if (val && taskText) {
+        const rankMatch = taskText.match(/(Fool|Magician|Priestess|Empress|Emperor|Hierophant|Lovers|Chariot|Justice|Hermit|Fortune|Strength|Hanged|Death|Temperance|Devil|Tower|Star|Moon|Sun|Judgement|Faith|Councillor)\s+(?:Confidant\s+)?(?:Rank\s+)?(\d+)/i);
+
+        if (rankMatch) {
+          const arcanaName = rankMatch[1].toLowerCase();
+          const targetRank = parseInt(rankMatch[2], 10);
+          const confidantId = confidantKeyMap[arcanaName];
+
+          if (confidantId) {
+            const ranks = getStorage("p5r_confidant_ranks", {});
+            const currentRank = ranks[confidantId] || 0;
+
+            if (targetRank > currentRank) {
+              ranks[confidantId] = targetRank;
+              setStorage("p5r_confidant_ranks", ranks);
+              
+              const container = document.getElementById('confidants-container');
+              if (container && container.children.length > 0) {
+                renderConfidants();
+              }
+            }
+          }
+        }
+      }
+
+      renderDaysQuickGrid();
+      updateGlobalProgress();
+    }
+
+    function saveDayNote(dayId) {
+      const noteInput = document.getElementById(`note-${dayId}`);
+      if (!noteInput) return;
+      const val = noteInput.value;
+      const notes = getStorage("p5r_notes", {});
+      notes[dayId] = val;
+      setStorage("p5r_notes", notes);
+      updateDiaryCount();
+
+      const btn = document.getElementById(`btn-note-${dayId}`);
+      if (btn) {
+        btn.innerText = "SALVO! ✓";
+        btn.classList.add("bg-green-700");
+        setTimeout(() => {
+          btn.innerText = "SALVAR NOTA";
+          btn.classList.remove("bg-green-700");
+        }, 1500);
+      }
+    }
+
+    function clearDayNote(dayId) {
+      const noteInput = document.getElementById(`note-${dayId}`);
+      if (noteInput) noteInput.value = "";
+      const notes = getStorage("p5r_notes", {});
+      if (notes[dayId]) {
+        delete notes[dayId];
+        setStorage("p5r_notes", notes);
+        updateDiaryCount();
+      }
+      const btn = document.getElementById(`btn-note-${dayId}`);
+      if (btn) {
+        btn.innerText = "LIMPO! ✓";
+        setTimeout(() => {
+          btn.innerText = "SALVAR NOTA";
+        }, 1200);
+      }
+    }
+
+    // ================= NEGOCIAÇÃO & COMPÊNDIO =================
+    function loadNegotiationFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          customShadows = Array.isArray(parsed) ? parsed : (parsed.shadows || []);
+          setStorage("p5r_custom_shadows", customShadows);
+          populateLocationDropdown();
+          renderCustomNegotiation();
+          alert(`Arquivo carregado com sucesso! ${customShadows.length} sombras importadas.`);
+        } catch (err) {
+          alert("Erro: Arquivo negotiation.json inválido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function populateLocationDropdown() {
+      const select = document.getElementById('location-select');
+      if (!select) return;
+      const saved = getStorage("p5r_custom_shadows", []);
+      
+      const locations = new Set();
+      saved.forEach(s => {
+        if (s.location) locations.add(s.location);
+        if (s.areas && !s.location) locations.add("Mementos");
+      });
+
+      const currentVal = select.value;
+      select.innerHTML = '<option value="">Todos os Locais / Áreas</option>' + 
+        Array.from(locations).sort().map(loc => `<option value="${loc}">${loc}</option>`).join('');
+      
+      if (Array.from(locations).includes(currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
+    function getNegotiationStrategy(personality) {
+      const p = (personality || "").toLowerCase().trim();
+      switch (p) {
+        case 'upbeat':
+          return { label: 'Engraçada / Alegre (Funny)', cls: 'text-yellow-400 bg-yellow-950/40 border-yellow-700/60' };
+        case 'timid':
+          return { label: 'Gentil / Acolhedora (Kind)', cls: 'text-sky-300 bg-sky-950/40 border-sky-700/60' };
+        case 'irritable':
+          return { label: 'Séria / Direta (Serious)', cls: 'text-rose-400 bg-rose-950/40 border-rose-700/60' };
+        case 'gloomy':
+          return { label: 'Vaga / Inesperada (Vague)', cls: 'text-purple-300 bg-purple-950/40 border-purple-700/60' };
+        default:
+          return { label: 'Incompatível / Sem Diálogo', cls: 'text-zinc-500 bg-zinc-800/40 border-zinc-700/60' };
+      }
+    }
+
+    function renderCustomNegotiation() {
+      const saved = getStorage("p5r_custom_shadows", []);
+      customShadows = saved;
+
+      const tbody = document.getElementById('custom-shadows-body');
+      const counter = document.getElementById('shadows-count');
+      const searchInput = document.getElementById('shadow-search');
+      const locationSelect = document.getElementById('location-select');
+
+      if (!tbody) return;
+
+      const term = searchInput ? searchInput.value.toLowerCase().trim() : "";
+      const selectedLocation = locationSelect ? locationSelect.value.toLowerCase().trim() : "";
+
+      const filtered = customShadows.filter(s => {
+        const name = (s.persona || "").toLowerCase();
+        const shadow = (s.shadow || "").toLowerCase();
+        const weak = (s.weakness || s.weak || "").toLowerCase();
+        const arcana = (s.arcana || "").toLowerCase();
+        const loc = (s.location || "").toLowerCase();
+        const area = (s.areas || "").toLowerCase();
+
+        const matchesTerm = !term || (name.includes(term) || shadow.includes(term) || weak.includes(term) || arcana.includes(term));
+
+        let matchesLocation = true;
+        if (selectedLocation) {
+          if (selectedLocation === "mementos") {
+            matchesLocation = loc.includes("mementos") || area.length > 0;
+          } else {
+            matchesLocation = loc.includes(selectedLocation);
+          }
+        }
+
+        return matchesTerm && matchesLocation;
+      });
+
+      if (counter) counter.innerText = `${filtered.length} / ${customShadows.length} SOMBRAS`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-zinc-500">Nenhuma sombra encontrada para os filtros selecionados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(s => {
+        const personality = s.personality || s.type || "-";
+        const strat = getNegotiationStrategy(personality);
+        const locationText = s.location 
+          ? s.location + (s.areas ? ` (Área ${s.areas})` : '')
+          : (s.areas ? `Mementos (Área ${s.areas})` : '-');
+
+        return `
+          <tr class="hover:bg-zinc-800/40">
+            <td class="p-3 font-bold font-sub text-white text-center">${s.level ?? "-"}</td>
+            <td class="p-3 text-zinc-200 font-semibold">${s.shadow || "-"}</td>
+            <td class="p-3 text-white font-bold">${s.persona || "-"}</td>
+            <td class="p-3 text-zinc-400 font-sub uppercase">${s.arcana || "-"}</td>
+            <td class="p-3 font-sub font-bold text-zinc-300 uppercase">${personality}</td>
+            <td class="p-3">
+              <span class="inline-block border px-2 py-0.5 rounded text-[11px] font-sub font-bold ${strat.cls}">
+                ${strat.label}
+              </span>
+            </td>
+            <td class="p-3 text-zinc-400">${locationText}</td>
+            <td class="p-3 text-red-300 font-semibold">${s.weakness || s.weak || "-"}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ================= CONFIDANTS =================
+    function renderConfidants() {
+      const container = document.getElementById('confidants-container');
+      if (!container) return;
+      const confidantRanks = getStorage("p5r_confidant_ranks", {});
+      let maxCount = 0;
+
+      container.innerHTML = confidantsData.map(c => {
+        const currentRank = confidantRanks[c.id] || 0;
+        if (currentRank >= c.maxRank) maxCount++;
+
+        return `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-4 flex flex-col justify-between shadow-lg">
+            <div>
+              <div class="flex justify-between items-start mb-3 border-b border-zinc-800 pb-3">
+                <div class="flex items-center gap-3">
+                  ${c.img ? `
+                    <img src="${c.img}" alt="${c.name}" class="w-12 h-12 rounded-full object-cover border-2 border-p5-red p5-skew shadow-md bg-zinc-950 flex-shrink-0" />
+                  ` : `
+                    <div class="w-12 h-12 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-500 flex-shrink-0">
+                      P5R
+                    </div>
+                  `}
+                  <div>
+                    <span class="text-[10px] bg-p5-red text-black font-extrabold px-1.5 py-0.5 rounded font-sub uppercase">${c.arcana}</span>
+                    <h3 class="font-sub font-bold text-lg text-white mt-0.5 leading-tight">${c.name}</h3>
+                  </div>
+                </div>
+
+                <div class="text-right flex-shrink-0">
+                  <span class="text-[10px] text-zinc-500 font-sub uppercase block">Rank Atual</span>
+                  <span class="font-p5 text-2xl ${currentRank >= c.maxRank ? 'text-amber-400' : 'text-zinc-200'}">${currentRank} / ${c.maxRank}</span>
+                </div>
+              </div>
+
+              <div class="text-[11px] text-zinc-400 mb-3 space-y-1">
+                <div>📍 <b>Localização:</b> ${c.location}</div>
+                <div>🎁 <b>Vantagens:</b> <span class="text-zinc-300">${c.perks}</span></div>
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-zinc-800/80 flex items-center justify-between">
+              <span class="text-xs font-sub text-zinc-400 font-bold">Alterar Rank:</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="changeConfidantRank('${c.id}', -1, ${c.maxRank})" class="bg-zinc-800 hover:bg-zinc-700 px-2 py-0.5 rounded text-sm font-bold text-white transition">-</button>
+                <select onchange="setConfidantRank('${c.id}', this.value)" class="bg-zinc-950 border border-zinc-800 rounded px-2 py-1 text-xs text-white focus:outline-none focus:border-red-600">
+                  ${Array.from({ length: c.maxRank + 1 }, (_, i) => `<option value="${i}" ${i === currentRank ? 'selected' : ''}>Rank ${i}</option>`).join('')}
+                </select>
+                <button onclick="changeConfidantRank('${c.id}', 1, ${c.maxRank})" class="bg-zinc-800 hover:bg-zinc-700 px-2 py-0.5 rounded text-sm font-bold text-white transition">+</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const countEl = document.getElementById('confidants-max-count');
+      if (countEl) countEl.innerText = `${maxCount} / ${confidantsData.length}`;
+      updateGlobalProgress();
+    }
+
+    function setConfidantRank(id, rank) {
+      const ranks = getStorage("p5r_confidant_ranks", {});
+      ranks[id] = parseInt(rank, 10);
+      setStorage("p5r_confidant_ranks", ranks);
+      renderConfidants();
+    }
+
+    function changeConfidantRank(id, delta, max) {
+      const ranks = getStorage("p5r_confidant_ranks", {});
+      const current = ranks[id] || 0;
+      ranks[id] = Math.max(0, Math.min(max, current + delta));
+      setStorage("p5r_confidant_ranks", ranks);
+      renderConfidants();
+    }
+
+    // ================= CONQUISTAS =================
+    function renderAchievements() {
+      const container = document.getElementById('achievements-container');
+      if (!container) return;
+      const achChecks = getStorage("p5r_achievements", {});
+      let unlockedCount = 0;
+
+      container.innerHTML = achievementsData.map(a => {
+        const isDone = !!achChecks[a.id];
+        if (isDone) unlockedCount++;
+
+        return `
+          <div class="bg-zinc-900 border ${isDone ? 'border-red-900/60 bg-zinc-900/70 shadow-[0_0_15px_rgba(230,0,18,0.15)]' : 'border-zinc-800'} rounded p-3 flex items-center justify-between gap-4 transition hover:border-zinc-700">
+            <div class="flex items-center gap-3 sm:gap-4 flex-1">
+              <input type="checkbox" onchange="toggleAchievement('${a.id}', this.checked)" ${isDone ? 'checked' : ''} 
+                     class="h-5 w-5 accent-red-600 rounded cursor-pointer flex-shrink-0">
+
+              <div class="flex-shrink-0">
+                ${a.icon ? `
+                  <img src="${a.icon}" alt="${a.name}" 
+                       class="w-12 h-12 rounded object-contain border ${isDone ? 'border-p5-red filter-none' : 'border-zinc-800 grayscale opacity-40'} transition-all duration-200" />
+                ` : `
+                  <div class="w-12 h-12 rounded bg-zinc-950 border ${isDone ? 'border-p5-red text-amber-400' : 'border-zinc-800 text-zinc-600'} flex items-center justify-center font-bold text-xs font-sub transition">
+                    🏆
+                  </div>
+                `}
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-sub font-bold text-sm ${isDone ? 'text-white' : 'text-zinc-300'}">${a.name}</h4>
+                  <span class="text-[10px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-sub uppercase">${a.cat}</span>
+                </div>
+                <p class="text-xs ${isDone ? 'text-zinc-300' : 'text-zinc-500'} mt-0.5 leading-relaxed">${a.desc}</p>
+              </div>
+            </div>
+
+            <span class="text-xs font-sub font-bold ${isDone ? 'text-amber-400' : 'text-zinc-600'} uppercase flex-shrink-0">
+              ${isDone ? 'Conquistado ✓' : 'Pendente'}
+            </span>
+          </div>
+        `;
+      }).join('');
+
+      const pct = Math.round((unlockedCount / achievementsData.length) * 100);
+      const countEl = document.getElementById('achievements-count');
+      if (countEl) countEl.innerText = `${unlockedCount} / ${achievementsData.length} (${pct}%)`;
+      updateGlobalProgress();
+    }
+
+    function toggleAchievement(id, val) {
+      const achChecks = getStorage("p5r_achievements", {});
+      achChecks[id] = val;
+      setStorage("p5r_achievements", achChecks);
+      renderAchievements();
+    }
+
+    // ================= PROGRESSO GLOBAL =================
+    function updateGlobalProgress() {
+      const checks = getStorage("p5r_checks", {});
+      const achChecks = getStorage("p5r_achievements", {});
+      const confidantRanks = getStorage("p5r_confidant_ranks", {});
+      const stats = getStorage("p5r_social_stats", { knowledge: 1, guts: 1, proficiency: 1, kindness: 1, charm: 1 });
+
+      const checkedTasks = Object.values(checks).filter(Boolean).length;
+      const checkedAchs = Object.values(achChecks).filter(Boolean).length;
+      const totalRanksEarned = Object.values(confidantRanks).reduce((a, b) => a + b, 0);
+      const totalSocialPoints = Object.values(stats).reduce((a, b) => a + b, 0) - 5;
+
+      const totalUnits = (schedule.length ? schedule.length * 3 : 100) + achievementsData.length + 230 + 20;
+      const currentUnits = checkedTasks + checkedAchs + totalRanksEarned + totalSocialPoints;
+
+      const pct = Math.min(100, Math.round((currentUnits / totalUnits) * 100));
+
+      const txt = document.getElementById('global-progress-text');
+      const bar = document.getElementById('global-progress-bar');
+      if (txt) txt.innerText = `${pct}% CONCLUÍDO`;
+      if (bar) bar.style.width = `${pct}%`;
+    }
+
+    // ================= BACKUP: RESET / EXPORT / IMPORT =================
+    function resetProgressOnly() {
+      const confirmed = confirm(
+        "Tem a certeza de que deseja reiniciar apenas o progresso marcado?\n\nIsto irá desmarcar tarefas, zerar ranks de Confidants, resetar atributos sociais, desmarcar conquistas e limpar o diário, mas manterá o calendário e as sombras carregadas."
+      );
+
+      if (!confirmed) return;
+
+      const progressKeys = [
+        "p5r_checks",
+        "p5r_notes",
+        "p5r_confidant_ranks",
+        "p5r_achievements",
+        "p5r_social_stats",
+        "p5r_current_active_day"
+      ];
+
+      progressKeys.forEach(key => localStorage.removeItem(key));
+
+      renderDays();
+      renderDaysQuickGrid();
+      renderConfidants();
+      renderAchievements();
+      renderFloatingStatsRadar();
+      updateDiaryCount();
+      renderDiary();
+      updateGlobalProgress();
+
+      alert("Progresso reiniciado com sucesso! Os ficheiros JSON continuam ativos.");
+    }
+
+    function exportProgressData() {
+      const saveData = {
+        version: "1.3",
+        date: new Date().toISOString(),
+        checks: getStorage("p5r_checks", {}),
+        notes: getStorage("p5r_notes", {}),
+        confidants: getStorage("p5r_confidant_ranks", {}),
+        achievements: getStorage("p5r_achievements", {}),
+        socialStats: getStorage("p5r_social_stats", {}),
+        currentDay: localStorage.getItem("p5r_current_active_day") || null
+      };
+
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveData, null, 2));
+      const downloadAnchor = document.createElement("a");
+      const fileName = `p5r_save_backup_${new Date().toISOString().slice(0, 10)}.json`;
+
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importProgressData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+
+          if (!data.checks && !data.confidants && !data.achievements) {
+            throw new Error("Formato de save inválido.");
+          }
+
+          if (data.checks) setStorage("p5r_checks", data.checks);
+          if (data.notes) setStorage("p5r_notes", data.notes);
+          if (data.confidants) setStorage("p5r_confidant_ranks", data.confidants);
+          if (data.achievements) setStorage("p5r_achievements", data.achievements);
+          if (data.socialStats) setStorage("p5r_social_stats", data.socialStats);
+          if (data.currentDay) localStorage.setItem("p5r_current_active_day", data.currentDay);
+
+          renderDays();
+          renderDaysQuickGrid();
+          renderConfidants();
+          renderAchievements();
+          renderFloatingStatsRadar();
+          updateDiaryCount();
+          renderDiary();
+          updateGlobalProgress();
+
+          alert("Save importado e aplicado com sucesso!");
+        } catch (err) {
+          alert("Erro ao importar o save: Certifique-se de que selecionou um ficheiro de backup válido.");
+        } finally {
+          e.target.value = "";
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ================= DIÁRIO =================
+    function updateDiaryCount() {
+      const notes = getStorage("p5r_notes", {});
+      const count = Object.values(notes).filter(t => t && t.trim().length > 0).length;
+      const counterEl = document.getElementById("diary-counter");
+      const totalEl = document.getElementById("diary-total-count");
+      if (counterEl) counterEl.innerText = count;
+      if (totalEl) totalEl.innerText = `${count} DIAS`;
+    }
+
+    function deleteDiaryEntry(dayId) {
+      if (!confirm("Deseja realmente apagar esta anotação do diário?")) return;
+      
+      const notes = getStorage("p5r_notes", {});
+      delete notes[dayId];
+      setStorage("p5r_notes", notes);
+      
+      // Limpa também o textarea do card do dia na agenda caso ele já esteja renderizado
+      const textarea = document.getElementById(`note-${dayId}`);
+      if (textarea) textarea.value = "";
+      
+      updateDiaryCount();
+      renderDiary();
+    }
+
+    function renderDiary() {
+      const container = document.getElementById('diary-entries-container');
+      if (!container) return;
+      const notes = getStorage("p5r_notes", {});
+      const entries = Object.keys(notes).filter(k => notes[k] && notes[k].trim().length > 0);
+
+      updateDiaryCount();
+
+      if (entries.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-20 text-zinc-500">Você ainda não escreveu nenhuma anotação no seu diário.</div>`;
+        return;
+      }
+
+      container.innerHTML = entries.map(id => {
+        const dayObj = schedule.find(d => d.id === id);
+        const title = dayObj ? `${dayObj.date} (${dayObj.month})` : id;
+        return `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-4 shadow-lg flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-center border-b border-zinc-800 pb-2 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-sub font-bold text-sm text-p5-red">${title}</span>
+                  <span class="text-[10px] text-zinc-500 font-sub uppercase">ID: ${id}</span>
+                </div>
+                <button onclick="deleteDiaryEntry('${id}')" title="Excluir anotação" class="text-xs font-sub font-bold text-zinc-500 hover:text-red-400 bg-zinc-950 hover:bg-red-950/40 border border-zinc-800 hover:border-red-800 px-2 py-0.5 rounded transition">
+                  🗑️ EXCLUIR
+                </button>
+              </div>
+              <p class="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">${notes[id]}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ================= INICIALIZAÇÃO =================
+    window.onload = () => {
+      try {
+        const cached = localStorage.getItem("p5r_cached_schedule");
+        if (cached) {
+          schedule = JSON.parse(cached);
+          renderMonthsBar();
+          renderDays();
+          renderDaysQuickGrid();
+        }
+      } catch (err) {
+        console.error("Erro ao ler cache do schedule:", err);
+      }
+
+      renderConfidants();
+      renderAchievements();
+      renderFloatingStatsRadar();
+      populateLocationDropdown();
+      renderCustomNegotiation();
+      updateDiaryCount();
+      updateGlobalProgress();
+    };
+  </script>
+</body>
+</html>
